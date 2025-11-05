@@ -10,7 +10,7 @@ func main() {
 	var fruitSupply map[string]int
 	// Dokler slovarja ne inicializiramo z make, do njega ne moremo dostopati
 	fruitSupply = make(map[string]int)
-
+	// ali pa "var fruitSupply map[string]int{}"
 	// Dodamo nove ključe v slovar
 	fruitSupply["jabolka"] = 5
 	fruitSupply["hruske"] = 3

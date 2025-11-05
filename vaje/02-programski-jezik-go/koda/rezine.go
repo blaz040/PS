@@ -14,7 +14,7 @@ func main() {
 	// nismo ustvarili kopije podatkov ampak samo referenco na elemente tabele
 	var s1 []int = fibonacci[0:3]
 	// Do elementov v rezini dostopamo na enak način kot do elementov tabele
-	fmt.Printf("%T, %d, %d, %d\n", s1, s1[0], s1[1], s1[2])
+	fmt.Printf("%T, %d, %d, %d,%d\n", s1, s1[0], s1[1], s1[2], s1[3])
 
 	// Zgornjo ali spoodnjo ali obe meji lahko izpustimo, če ustvarjamo rezino, ki vsebuje vse elemente polja
 	var s2 []int = fibonacci[:]

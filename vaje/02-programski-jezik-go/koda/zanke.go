@@ -37,6 +37,7 @@ func main() {
 		fmt.Println(v)
 	}
 	fmt.Println()
+	// izpisuje indekse
 	for i := range fibonacci {
 		fmt.Println(i)
 	}
