@@ -19,7 +19,7 @@ func worker(id int, done chan bool) {
 func main() {
 	// Ustvarimo kanal s kapaciteto 3
 	workers := 3
-	done := make(chan bool, workers)
+	done := make(chan bool)
 	// Zaženemo delavce
 	for w := 0; w < workers; w++ {
 		go worker(w, done)
