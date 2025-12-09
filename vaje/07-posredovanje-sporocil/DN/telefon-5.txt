@@ -1,0 +1,4 @@
+Telefon 5 posluša na 127.0.0.1:10005
+Telefon 5 prejel sporočilo: 
+Telefon 5 poslal sporočilo 5 telefonu na naslovu 127.0.0.1:10000
+rm: cannot remove 'telefon': No such file or directory

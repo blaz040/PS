@@ -1,0 +1,43 @@
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10002
+Telefon 0 posluša na 127.0.0.1:10000
+Telefon 0 prejel sporočilo: 2
+Telefon 0 posluša na 127.0.0.1:10000
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10006
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10004
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10001
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10005
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10003
+Telefon 0 prejel sporočilo: 6
+Telefon 0 posluša na 127.0.0.1:10000
+Telefon 0 prejel sporočilo: 4
+Telefon 0 posluša na 127.0.0.1:10000
+Telefon 0 prejel sporočilo: 3
+Telefon 0 posluša na 127.0.0.1:10000
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10005
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10003
+Received msg from 3 
+Stopped sending at 2 repetitions
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10006
+Received msg from 6 
+Stopped sending at 2 repetitions
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10002
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10001
+Received msg from 2 
+Stopped sending at 2 repetitions
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10004
+Received msg from 4 
+Stopped sending at 2 repetitions
+Telefon 0 prejel sporočilo: 1
+Telefon 0 posluša na 127.0.0.1:10000
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10001
+Received msg from 1 
+Stopped sending at 3 repetitions
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10005
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10005
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10005
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10005
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10005
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10005
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10005
+Telefon 0 poslal sporočilo  telefonu na naslovu 127.0.0.1:10005
+rm: cannot remove 'telefon': No such file or directory

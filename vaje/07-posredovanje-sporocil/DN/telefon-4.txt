@@ -1,0 +1,3 @@
+Telefon 4 posluša na 127.0.0.1:10004
+Telefon 4 prejel sporočilo: 
+Telefon 4 poslal sporočilo 4 telefonu na naslovu 127.0.0.1:10000

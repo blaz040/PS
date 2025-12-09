@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --nodes=1
-#SBATCH --array=0-4
+#SBATCH --array=0-6
 #SBATCH --reservation=fri
 #SBATCH --output=telefon-%a.txt
 
@@ -8,9 +8,9 @@
 # %a se nadomesti za nalogo posla 
 
 #Zazeni s sbatch run_telefon.sh na gruci Arnes
-path=./telefonUDP
-
+path=.
 module load Go
-go build $path/telefon.go
-srun telefon -p 9000 -id $SLURM_ARRAY_TASK_ID -n $SLURM_ARRAY_TASK_COUNT
+go build telefon.go
+srun telefon -p 10000 -id $SLURM_ARRAY_TASK_ID -n $SLURM_ARRAY_TASK_COUNT
+rm telefon
 # srun se bo 5x zagnal v tem primeru

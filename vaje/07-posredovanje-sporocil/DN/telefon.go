@@ -1,28 +1,29 @@
-package dn
+package main
 
 import (
 	"flag"
 	"fmt"
 	"net"
+	"sync"
 	"time"
+	"strconv"
 )
 
 type message struct {
 	data   []byte
 	length int
 }
-
-var receivedMsg chan bool
 var N int
 var id int
-var waitTime = time.Millisecond * 500
+var waitTime = time.Millisecond * 1000
+var wg sync.WaitGroup
 
 func checkError(err error) {
 	if err != nil {
 		panic(err)
 	}
 }
-func receive(addr *net.UDPAddr) {
+func receive(addr *net.UDPAddr) message{
 	// Poslušamo
 	conn, err := net.ListenUDP("udp", addr)
 	checkError(err)
@@ -34,7 +35,11 @@ func receive(addr *net.UDPAddr) {
 	checkError(err)
 	fmt.Println("Telefon", id, "prejel sporočilo:", string(buffer[:mLen]))
 
-	receivedMsg <- true
+	rMsg := message{}
+	rMsg.data = buffer[:mLen]
+	rMsg.length = mLen
+
+	return rMsg
 }
 
 func send(addr *net.UDPAddr, msg message) {
@@ -43,8 +48,9 @@ func send(addr *net.UDPAddr, msg message) {
 	checkError(err)
 	defer conn.Close()
 	// Pripravimo sporočilo
-	sMsg := fmt.Sprint(id) + "-"
-	sMsg = string(msg.data[:msg.length]) + sMsg
+	//sMsg := fmt.Sprint(id)
+	// sMsg = string(msg.data[:msg.length]) + sMsg
+	sMsg := string(msg.data[:msg.length])
 	_, err = conn.Write([]byte(sMsg))
 	checkError(err)
 	fmt.Println("Telefon", id, "poslal sporočilo", sMsg, "telefonu na naslovu", addr)
@@ -55,7 +61,7 @@ func main() {
 	portPtr := flag.Int("p", 9000, "# start port")
 	idPtr := flag.Int("id", 0, "# process id")
 	NPtr := flag.Int("n", 2, "total number of processes")
-	rootPtr := flag.Int("n", 0, " # root id")
+	rootPtr := flag.Int("rootId", 0, " # root id")
 
 	flag.Parse()
 
@@ -72,43 +78,54 @@ func main() {
 	localAddr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("localhost:%d", basePort))
 	checkError(err)
 
-	// Ustvari kanal, ki bo signaliziral, da so vsi procesi pripravljeni
-	receivedMsg = make(chan bool)
-
 	// Izmenjava sporočil
 	if id == root {
-		for i := 0; i <= N; i++ {
+		receivedMsg := make([]chan bool, N)
+		for i :=range receivedMsg {
+			receivedMsg[i] = make(chan bool, 1)
+		}
+		go func() {
+			for i := 0; i < N; i++ {
+				msg := receive(rootAddr)
+				//senderID := int(string(msg.data[:msg.length]))
+				senderID, err := strconv.Atoi(string(msg.data[:msg.length]))            // convert string to int
+    				if err != nil {
+   					panic(err)
+    				}
+				receivedMsg[senderID] <- true
+			}
+		}()
+		for i := 0; i < N; i++ {
 			if i == root {
 				continue
 			}
-			go func() {
+			wg.Add(1)
+			go func(i int) {
+				defer wg.Done()
 				sendPort := rootPort + i
-
 				remoteAddr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("localhost:%d", sendPort))
 				checkError(err)
-				repeat := 5
-
-				go receive(rootAddr)
+				repeat := 10
 
 				for repeat != 0 {
 					repeat--
 					send(remoteAddr, message{})
 					select {
-					case <-receivedMsg:
-						fmt.Printf("Received msg from %d", i)
+					case <-receivedMsg[i]:
+						fmt.Printf("Received msg from %d \n", i)
+						fmt.Printf("Stopped sending at %d repetitions\n",10-repeat)
 						return
 					default:
 						time.Sleep(waitTime)
 					}
 				}
-			}()
+			}(i)
 		}
-
-		// send(remoteAddr, message{})
-		//rMsg := receive(localAddr)
-		//fmt.Println(string(rMsg.data[:rMsg.length]) + "0")
+		// send(remoteAddr, message{}) rMsg := receive(localAddr) fmt.Println(string(rMsg.data[:rMsg.length]) + "0")
+		wg.Wait()
 	} else {
 		receive(localAddr)
-		send(rootAddr, message{})
+		data := []byte(fmt.Sprintf("%d",id))
+		send(rootAddr, message{data:data,length:len(data)})
 	}
 }
