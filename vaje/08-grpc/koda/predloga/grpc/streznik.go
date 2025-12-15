@@ -40,6 +40,7 @@ func Server(url string) {
 	if err := grpcServer.Serve(listener); err != nil {
 		panic(err)
 	}
+
 }
 
 // stuktura za strežnik CRUD za shrambo TodoStorage
@@ -48,10 +49,22 @@ type serverCRUD struct {
 	todoStore storage.TodoStorage
 }
 
+var streamTable []*grpc.ServerStreamingServer[protobufStorage.TodoEvent]
+
 // pripravimo nov strežnik CRUD za shrambo TodoStorage
 func NewServerCRUD() *serverCRUD {
 	todoStorePtr := storage.NewTodoStorage()
 	return &serverCRUD{protobufStorage.UnimplementedCRUDServer{}, *todoStorePtr}
+}
+
+func notifySubscribers(todo *protobufStorage.Todo, action string) error {
+	todoEvent_temp := &protobufStorage.TodoEvent{T: todo, Action: action}
+	for _, stream := range streamTable {
+		if err := (*stream).Send(todoEvent_temp); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // metode strežnika CRUD za shrambo TodoStorage
@@ -61,6 +74,7 @@ func NewServerCRUD() *serverCRUD {
 func (s *serverCRUD) Create(ctx context.Context, in *protobufStorage.Todo) (*emptypb.Empty, error) {
 	var ret struct{}
 	err := s.todoStore.Create(&storage.Todo{Task: in.Task, Completed: in.Completed}, &ret)
+	notifySubscribers(&protobufStorage.Todo{Task: in.Task, Completed: in.Completed}, "created")
 	return &emptypb.Empty{}, err
 }
 
@@ -77,11 +91,31 @@ func (s *serverCRUD) Read(ctx context.Context, in *protobufStorage.Todo) (*proto
 func (s *serverCRUD) Update(ctx context.Context, in *protobufStorage.Todo) (*emptypb.Empty, error) {
 	var ret struct{}
 	err := s.todoStore.Update(&storage.Todo{Task: in.Task, Completed: in.Completed}, &ret)
+	notifySubscribers(&protobufStorage.Todo{Task: in.Task, Completed: in.Completed}, "updated")
 	return &emptypb.Empty{}, err
 }
 
 func (s *serverCRUD) Delete(ctx context.Context, in *protobufStorage.Todo) (*emptypb.Empty, error) {
 	var ret struct{}
 	err := s.todoStore.Delete(&storage.Todo{Task: in.Task, Completed: in.Completed}, &ret)
+	notifySubscribers(&protobufStorage.Todo{Task: in.Task, Completed: in.Completed}, "deleted")
 	return &emptypb.Empty{}, err
+}
+
+func (s *serverCRUD) ReadAll(e *emptypb.Empty, stream grpc.ServerStreamingServer[protobufStorage.Todo]) error {
+	dict := make(map[string](storage.Todo))
+	err := s.todoStore.Read(&storage.Todo{}, &dict)
+	for _, todo := range dict {
+		todo_temp := &protobufStorage.Todo{Task: todo.Task, Completed: todo.Completed}
+		if err := stream.Send(todo_temp); err != nil {
+			return err
+		}
+	}
+	return err
+}
+
+func (s *serverCRUD) Subscribe(e *emptypb.Empty, stream grpc.ServerStreamingServer[protobufStorage.TodoEvent]) error {
+	streamTable = append(streamTable, &stream)
+	select {}
+	return nil
 }

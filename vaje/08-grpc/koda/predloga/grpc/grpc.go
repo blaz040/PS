@@ -25,6 +25,8 @@ func main() {
 	// preberemo argumente iz ukazne vrstice
 	sPtr := flag.String("s", "", "server URL")
 	pPtr := flag.Int("p", 9876, "port number")
+	subPtr := flag.Bool("sub", false, "subscriber")
+
 	flag.Parse()
 
 	// zaženemo strežnik ali odjemalca
@@ -32,6 +34,11 @@ func main() {
 	if *sPtr == "" {
 		Server(url)
 	} else {
-		Client(url)
+		if *subPtr == true {
+			Client_subscriber(url)
+		} else {
+			Client(url)
+		}
 	}
+
 }

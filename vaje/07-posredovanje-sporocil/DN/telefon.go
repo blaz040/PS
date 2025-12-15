@@ -4,15 +4,16 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"strconv"
 	"sync"
 	"time"
-	"strconv"
 )
 
 type message struct {
 	data   []byte
 	length int
 }
+
 var N int
 var id int
 var waitTime = time.Millisecond * 1000
@@ -23,7 +24,7 @@ func checkError(err error) {
 		panic(err)
 	}
 }
-func receive(addr *net.UDPAddr) message{
+func receive(addr *net.UDPAddr) message {
 	// Poslušamo
 	conn, err := net.ListenUDP("udp", addr)
 	checkError(err)
@@ -81,17 +82,17 @@ func main() {
 	// Izmenjava sporočil
 	if id == root {
 		receivedMsg := make([]chan bool, N)
-		for i :=range receivedMsg {
+		for i := range receivedMsg {
 			receivedMsg[i] = make(chan bool, 1)
 		}
 		go func() {
 			for i := 0; i < N; i++ {
 				msg := receive(rootAddr)
 				//senderID := int(string(msg.data[:msg.length]))
-				senderID, err := strconv.Atoi(string(msg.data[:msg.length]))            // convert string to int
-    				if err != nil {
-   					panic(err)
-    				}
+				senderID, err := strconv.Atoi(string(msg.data[:msg.length])) // convert string to int
+				if err != nil {
+					panic(err)
+				}
 				receivedMsg[senderID] <- true
 			}
 		}()
@@ -113,7 +114,7 @@ func main() {
 					select {
 					case <-receivedMsg[i]:
 						fmt.Printf("Received msg from %d \n", i)
-						fmt.Printf("Stopped sending at %d repetitions\n",10-repeat)
+						fmt.Printf("Stopped sending at %d repetitions\n", 10-repeat)
 						return
 					default:
 						time.Sleep(waitTime)
@@ -125,7 +126,7 @@ func main() {
 		wg.Wait()
 	} else {
 		receive(localAddr)
-		data := []byte(fmt.Sprintf("%d",id))
-		send(rootAddr, message{data:data,length:len(data)})
+		data := []byte(fmt.Sprintf("%d", id))
+		send(rootAddr, message{data: data, length: len(data)})
 	}
 }

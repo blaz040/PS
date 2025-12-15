@@ -7,10 +7,12 @@ import (
 	"api/grpc/protobufStorage"
 	"context"
 	"fmt"
+	"io"
 	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func Client(url string) {
@@ -32,6 +34,7 @@ func Client(url string) {
 	// pripravimo strukture, ki jih uporabljamo kot argumente pri klicu oddaljenih metod
 	lecturesCreate := protobufStorage.Todo{Task: "predavanja", Completed: false}
 	lecturesUpdate := protobufStorage.Todo{Task: "predavanja", Completed: true}
+	homeworkCreate := protobufStorage.Todo{Task: "domaca naloga", Completed: true} // dodamo domačo nalogo
 	practicals := protobufStorage.Todo{Task: "vaje", Completed: false}
 	readAll := protobufStorage.Todo{Task: "", Completed: false}
 
@@ -79,11 +82,23 @@ func Client(url string) {
 	}
 	fmt.Println("done")
 
-	// preberemo vse zapise
-	fmt.Print("7. Read *: ")
-	if response, err := grpcClient.Read(contextCRUD, &readAll); err == nil {
-		fmt.Println(response.Todos, ": done")
+	fmt.Print("7. Create: ")
+	if _, err := grpcClient.Create(contextCRUD, &homeworkCreate); err != nil {
+		panic(err)
+	}
+
+	// preberemo vse zapise stream
+	fmt.Print("8. Read *: \n")
+	if stream, err := grpcClient.ReadAll(contextCRUD, &emptypb.Empty{}); err == nil {
+		for {
+			todo, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			fmt.Println(todo)
+		}
 	} else {
 		panic(err)
 	}
+	fmt.Println("done")
 }
