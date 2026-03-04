@@ -57,3 +57,28 @@ func main() {
 		})
 	fmt.Println("\b] time:", time.Since(timeStart))
 }
+
+struct chan {
+	buf []
+	wcond
+	rcond
+	fun write(b){
+		wcond.lock()
+		while !this.readyToWrite(){
+			wcond.wait()
+		}	
+		this.buf.append(b)
+		rcond.signal()
+		wcond.unlock()
+	}
+	fun read(): b{
+		rcond.lock()
+		while this.empty() {
+			rcond.wait()
+		}
+		this.buf.removeFirst()
+		wcond.signal()
+		rcond.unlock()
+		return b
+	}
+}
